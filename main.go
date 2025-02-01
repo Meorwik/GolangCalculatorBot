@@ -9,6 +9,7 @@ import (
 )
 
 var userInputs = make(map[int64]string)
+var users = make(map[int64]string)
 
 func main() {
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
@@ -38,12 +39,18 @@ func handleMessage(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	chatID := message.Chat.ID
 	switch message.Text {
 	case "/start":
+		users[chatID] = message.From.UserName
 		msg := tgbotapi.NewMessage(chatID, "Привет! Я калькулятор-бот 🤖\nНажмите /calc, чтобы начать.")
 		bot.Send(msg)
 	case "/calc":
 		userInputs[chatID] = "" // Очищаем ввод перед началом
 		msg := tgbotapi.NewMessage(chatID, "Выберите числа и операцию:")
 		msg.ReplyMarkup = getCalculatorKeyboard()
+		bot.Send(msg)
+
+	case "users</>":
+		usersString := fmt.Sprintf("%v", users)
+		msg := tgbotapi.NewMessage(chatID, usersString)
 		bot.Send(msg)
 	}
 }
